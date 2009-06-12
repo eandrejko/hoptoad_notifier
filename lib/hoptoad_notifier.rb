@@ -181,6 +181,8 @@ module HoptoadNotifier
     # * request: The controller's request object.
     # * session: The contents of the user's session.
     # * environment: ENV merged with the contents of the request's environment.
+    #
+    # returns false if the notification failed to be sent, true otherwise
     def notify notice = {}
       Sender.new.notify_hoptoad( notice )
     end
@@ -234,6 +236,8 @@ module HoptoadNotifier
         notice = normalize_notice(hash_or_exception)
         notice = clean_notice(notice)
         send_to_hoptoad(:notice => notice)
+      else
+        return true
       end
     end
 
@@ -347,8 +351,10 @@ module HoptoadNotifier
       case response
       when Net::HTTPSuccess then
         log :info, "Success: #{response.class}", response
+        return true
       else
         log :error, "Failure: #{response.class}", response
+        return false
       end
     end
 
